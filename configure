@@ -121,19 +121,21 @@ EXEC := lemmings
 	\$(CXX) \$(CXXFLAGS) -c \$< -o \$@
 
 # Install target
-install: \$(EXEC)
-	install -d \$(INSTALL_PATH)
-	install -d \$(INSTALL_LIB_PATH)
-	install -m 755 \$(EXEC) \$(INSTALL_PATH)
-	install -m 644 \$(FMOD_PATH)/api/core/lib/$FMOD_LIB_PATH/libfmod.so* \$(INSTALL_LIB_PATH)
-	install -m 644 \$(FMOD_PATH)/api/studio/lib/$FMOD_LIB_PATH/libfmodstudio.so* \$(INSTALL_LIB_PATH)
-	cp -R Game/* \$(INSTALL_PATH)
+install: $(EXEC)
+	install -d $(INSTALL_PATH)
+	install -d $(INSTALL_LIB_PATH)
+	install -m 755 $(EXEC) $(INSTALL_PATH)
+	install -m 644 $(FMOD_PATH)/api/core/lib/$(FMOD_LIB_PATH)/libfmod.so.* $(INSTALL_LIB_PATH)
+	install -m 644 $(FMOD_PATH)/api/studio/lib/$(FMOD_LIB_PATH)/libfmodstudio.so.* $(INSTALL_LIB_PATH)
+	(cd $(INSTALL_LIB_PATH) && ln -sf libfmod.so.* libfmod.so)
+	(cd $(INSTALL_LIB_PATH) && ln -sf libfmodstudio.so.* libfmodstudio.so)
+	cp -R Game/* $(INSTALL_PATH)
 	@echo "Creating launch script..."
 	@echo '#!/bin/bash' > /usr/local/bin/lemmings
-	@echo 'cd \$(INSTALL_PATH) && LD_LIBRARY_PATH=\$(INSTALL_LIB_PATH):\$$LD_LIBRARY_PATH ./lemmings' >> /usr/local/bin/lemmings
+	@echo 'cd $(INSTALL_PATH) && LD_LIBRARY_PATH=$(INSTALL_LIB_PATH):$$LD_LIBRARY_PATH ./lemmings' >> /usr/local/bin/lemmings
 	chmod +x /usr/local/bin/lemmings
 	@echo "Updating library cache..."
-	echo \$(INSTALL_LIB_PATH) > /etc/ld.so.conf.d/lemmings.conf
+	echo $(INSTALL_LIB_PATH) > /etc/ld.so.conf.d/lemmings.conf
 	ldconfig
 
 # Clean rule
