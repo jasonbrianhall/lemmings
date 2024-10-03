@@ -31,7 +31,7 @@ SoundManager::SoundManager() : system(NULL) {
 	if (result != FMOD_OK) {
 		printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
 	}
-	system->getLowLevelSystem(&lowLevelSystem);
+	system->getCoreSystem(&lowLevelSystem);
 }
 
 
