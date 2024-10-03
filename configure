@@ -1,0 +1,114 @@
+#!/bin/bash
+
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# Function to check if a library is available
+check_lib() {
+    if pkg-config --exists "$1"; then
+        echo "Found $1"
+        return 0
+    else
+        echo "Warning: $1 not found via pkg-config"
+        return 1
+    fi
+}
+
+# Check for required commands
+for cmd in g++ pkg-config; do
+    if ! command_exists $cmd; then
+        echo "Error: $cmd is not installed"
+        exit 1
+    fi
+done
+
+# Check for required libraries
+LIBS_TO_CHECK="glut glew gl glu"
+for lib in $LIBS_TO_CHECK; do
+    check_lib $lib
+done
+
+# Check for SOIL manually
+if [ -f "/usr/include/SOIL/SOIL.h" ]; then
+    echo "Found SOIL"
+    SOIL_CFLAGS="-I/usr/include/SOIL"
+    SOIL_LIBS="-lSOIL"
+else
+    echo "Error: SOIL library not found"
+    exit 1
+fi
+
+# Check FMOD
+FMOD_PATH="./fmodstudioapi20224linux"
+if [ ! -d "$FMOD_PATH" ]; then
+    echo "Error: FMOD directory not found"
+    exit 1
+fi
+
+# Detect system architecture
+ARCH=$(uname -m)
+if [ "$ARCH" = "x86_64" ]; then
+    FMOD_LIB_PATH="x86_64"
+else
+    FMOD_LIB_PATH="x86"
+fi
+
+# Create Makefile
+cat > Makefile << EOF
+# Compiler
+CXX := g++
+
+# FMOD API path
+FMOD_PATH := $FMOD_PATH
+
+# Compiler flags
+CXXFLAGS := -std=c++11 -Wall -Wextra \\
+    -I\$(FMOD_PATH)/api/core/inc \\
+    -I\$(FMOD_PATH)/api/studio/inc \\
+    \$(shell pkg-config --cflags glut glew gl glu) \\
+    $SOIL_CFLAGS
+
+# Linker flags
+LDFLAGS := \\
+    -L\$(FMOD_PATH)/api/core/lib/$FMOD_LIB_PATH \\
+    -L\$(FMOD_PATH)/api/studio/lib/$FMOD_LIB_PATH
+
+# Libraries
+LIBS := -lfmod -lfmodstudio \$(shell pkg-config --libs glut glew gl glu) $SOIL_LIBS
+
+# Source directory
+SRC_DIR := src
+
+# Object directory
+OBJ_DIR := obj
+
+# Source files
+SRCS := \$(wildcard \$(SRC_DIR)/*.cpp)
+
+# Object files
+OBJS := \$(SRCS:\$(SRC_DIR)/%.cpp=\$(OBJ_DIR)/%.o)
+
+# Executable name
+EXEC := Game/lemmings
+
+# Main target
+\$(EXEC): \$(OBJS)
+	\$(CXX) \$(OBJS) -o \$(EXEC) \$(LDFLAGS) \$(LIBS)
+
+# Rule for object files
+\$(OBJ_DIR)/%.o: \$(SRC_DIR)/%.cpp
+	@mkdir -p \$(OBJ_DIR)
+	\$(CXX) \$(CXXFLAGS) -c \$< -o \$@
+
+# Clean rule
+clean:
+	rm -rf \$(OBJ_DIR) \$(EXEC)
+
+# Phony targets
+.PHONY: clean
+EOF
+
+echo "Configuration complete. Makefile has been created."
+echo "You can now run 'make' to build the project."
