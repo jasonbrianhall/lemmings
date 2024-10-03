@@ -124,7 +124,7 @@ install: \$(EXEC)
 	install -m 755 \$(EXEC) \$(INSTALL_PATH)
 	install -m 644 \$(FMOD_PATH)/api/core/lib/$FMOD_LIB_PATH/libfmod.so* \$(INSTALL_PATH)
 	install -m 644 \$(FMOD_PATH)/api/studio/lib/$FMOD_LIB_PATH/libfmodstudio.so* \$(INSTALL_PATH)
-	cp -R Game \$(INSTALL_PATH)
+	cp -R Game/ \$(INSTALL_PATH)
 	@echo "Creating launch script..."
 	@echo '#!/bin/bash' > /usr/local/bin/lemmings
 	@echo 'cd \$(INSTALL_PATH) && LD_LIBRARY_PATH=\$(INSTALL_PATH) ./lemmings' >> /usr/local/bin/lemmings
