@@ -1,5 +1,7 @@
 # Lemmings ![LemmingGif](https://github.com/carlotacb/Lemmings/blob/master/Game/images/readme/lemming.gif)
 
+This is a fork of https://github.com/carlotacb/Lemmings to run in Linux
+
 This is a clone of the well-known videogame [Lemmings](https://en.wikipedia.org/wiki/Lemmings_(video_game)) implemented in C++ via a custom engine. It was developed during the Videogames subject of the Bachelor's Degree in Computer Science of the [Universitat Politècnica de Catalunya](https://www.upc.edu/ca) - [Facultat d'informàtica de Barcelona](https://www.fib.upc.edu/).
 
 
