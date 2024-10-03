@@ -1,5 +1,5 @@
 #include "Menu.h"
-#include "MenuKeyBoardManager.h"
+#include "MenuKeyboardManager.h"
 #include "MenuMouseManager.h"
 #include "ShaderManager.h"
 #include "Game.h"

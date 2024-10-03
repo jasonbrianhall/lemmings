@@ -1,7 +1,7 @@
 #ifndef _COUNTDOWN_INCLUDE
 #define _COUNTDOWN_INCLUDE
 
-#include <glm\glm.hpp>
+#include <glm/glm.hpp>
 #include "Sprite.h"
 
 class Countdown
