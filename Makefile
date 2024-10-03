@@ -31,7 +31,7 @@ SRCS := $(wildcard $(SRC_DIR)/*.cpp)
 OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 # Executable name
-EXEC := lemmings
+EXEC := Game/lemmings
 
 # Main target
 $(EXEC): $(OBJS)
