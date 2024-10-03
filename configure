@@ -69,6 +69,7 @@ case $ARCH in
 esac
 
 # Create Makefile
+# Create Makefile
 cat > Makefile << EOF
 # Compiler
 CXX := g++
@@ -76,8 +77,9 @@ CXX := g++
 # FMOD API path
 FMOD_PATH := $FMOD_PATH
 
-# Installation path
+# Installation paths
 INSTALL_PATH := /usr/local/games/lemmings
+INSTALL_LIB_PATH := \$(INSTALL_PATH)/lib
 
 # Compiler flags
 CXXFLAGS := -std=c++11 -Wall -Wextra \\
@@ -107,7 +109,7 @@ SRCS := \$(wildcard \$(SRC_DIR)/*.cpp)
 OBJS := \$(SRCS:\$(SRC_DIR)/%.cpp=\$(OBJ_DIR)/%.o)
 
 # Executable name
-EXEC := Game/lemmings
+EXEC := lemmings
 
 # Main target
 \$(EXEC): \$(OBJS)
@@ -121,14 +123,18 @@ EXEC := Game/lemmings
 # Install target
 install: \$(EXEC)
 	install -d \$(INSTALL_PATH)
+	install -d \$(INSTALL_LIB_PATH)
 	install -m 755 \$(EXEC) \$(INSTALL_PATH)
-	install -m 644 \$(FMOD_PATH)/api/core/lib/$FMOD_LIB_PATH/libfmod.so* \$(INSTALL_PATH)
-	install -m 644 \$(FMOD_PATH)/api/studio/lib/$FMOD_LIB_PATH/libfmodstudio.so* \$(INSTALL_PATH)
+	install -m 644 \$(FMOD_PATH)/api/core/lib/$FMOD_LIB_PATH/libfmod.so* \$(INSTALL_LIB_PATH)
+	install -m 644 \$(FMOD_PATH)/api/studio/lib/$FMOD_LIB_PATH/libfmodstudio.so* \$(INSTALL_LIB_PATH)
 	cp -R Game/* \$(INSTALL_PATH)
 	@echo "Creating launch script..."
 	@echo '#!/bin/bash' > /usr/local/bin/lemmings
-	@echo 'cd \$(INSTALL_PATH) && LD_LIBRARY_PATH=\$(INSTALL_PATH) ./lemmings' >> /usr/local/bin/lemmings
+	@echo 'cd \$(INSTALL_PATH) && LD_LIBRARY_PATH=\$(INSTALL_LIB_PATH):\$$LD_LIBRARY_PATH ./lemmings' >> /usr/local/bin/lemmings
 	chmod +x /usr/local/bin/lemmings
+	@echo "Updating library cache..."
+	echo \$(INSTALL_LIB_PATH) > /etc/ld.so.conf.d/lemmings.conf
+	ldconfig
 
 # Clean rule
 clean:
@@ -138,6 +144,8 @@ clean:
 uninstall:
 	rm -rf \$(INSTALL_PATH)
 	rm -f /usr/local/bin/lemmings
+	rm -f /etc/ld.so.conf.d/lemmings.conf
+	ldconfig
 
 # Phony targets
 .PHONY: clean install uninstall
