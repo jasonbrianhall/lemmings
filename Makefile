@@ -1,21 +1,24 @@
 # Compiler
 CXX := g++
 
+# FMOD API path
+FMOD_PATH := ./fmodstudioapi20224linux
+
 # Compiler flags
-CXXFLAGS := -m32 -std=c++11 -Wall -Wextra \
-	-I./libs/FMODapi/lowlevel/inc \
-	-I./libs/FMODapi/studio/inc \
+CXXFLAGS := -std=c++11 -Wall -Wextra \
+	-I$(FMOD_PATH)/api/core/inc \
+	-I$(FMOD_PATH)/api/studio/inc \
 	-I./libs/freeglut/include \
 	-I./libs/glew-1.13.0/include \
 	-I./libs/glm \
 	-I./libs/Simple\ OpenGL\ Image\ Library/src
 
 # Linker flags
-LDFLAGS := -m32 \
-	-L./libs/FMODapi/lowlevel/lib \
-	-L./libs/FMODapi/studio/lib \
+LDFLAGS := \
+	-L$(FMOD_PATH)/api/core/lib/x86_64 \
+	-L$(FMOD_PATH)/api/studio/lib/x86_64 \
 	-L./libs/freeglut/lib \
-	-L./libs/glew-1.13.0/lib/Release/Win32 \
+	-L./libs/glew-1.13.0/lib/Release/x64 \
 	-L./libs/Simple\ OpenGL\ Image\ Library/projects/VC9/Debug
 
 # Libraries
@@ -51,3 +54,4 @@ clean:
 
 # Phony targets
 .PHONY: clean
+
