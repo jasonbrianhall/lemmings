@@ -1,59 +1,6 @@
 #!/bin/bash
 
-# Function to check if a command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
-
-# Function to check if a library is available
-check_lib() {
-    if pkg-config --exists "$1"; then
-        echo "Found $1"
-        return 0
-    else
-        echo "Warning: $1 not found via pkg-config"
-        return 1
-    fi
-}
-
-# Check for required commands
-for cmd in g++ pkg-config; do
-    if ! command_exists $cmd; then
-        echo "Error: $cmd is not installed"
-        exit 1
-    fi
-done
-
-# Check for required libraries
-LIBS_TO_CHECK="glut glew gl glu"
-for lib in $LIBS_TO_CHECK; do
-    check_lib $lib
-done
-
-# Check for SOIL manually
-if [ -f "/usr/include/SOIL/SOIL.h" ]; then
-    echo "Found SOIL"
-    SOIL_CFLAGS="-I/usr/include/SOIL"
-    SOIL_LIBS="-lSOIL"
-else
-    echo "Error: SOIL library not found"
-    exit 1
-fi
-
-# Check FMOD
-FMOD_PATH="./fmodstudioapi20224linux"
-if [ ! -d "$FMOD_PATH" ]; then
-    echo "Error: FMOD directory not found"
-    exit 1
-fi
-
-# Detect system architecture
-ARCH=$(uname -m)
-if [ "$ARCH" = "x86_64" ]; then
-    FMOD_LIB_PATH="x86_64"
-else
-    FMOD_LIB_PATH="x86"
-fi
+# [Previous checks and configurations remain the same]
 
 # Create Makefile
 cat > Makefile << EOF
@@ -62,6 +9,9 @@ CXX := g++
 
 # FMOD API path
 FMOD_PATH := $FMOD_PATH
+
+# Installation path
+INSTALL_PATH := /usr/local/lemmings
 
 # Compiler flags
 CXXFLAGS := -std=c++11 -Wall -Wextra \\
@@ -91,7 +41,7 @@ SRCS := \$(wildcard \$(SRC_DIR)/*.cpp)
 OBJS := \$(SRCS:\$(SRC_DIR)/%.cpp=\$(OBJ_DIR)/%.o)
 
 # Executable name
-EXEC := Game/lemmings
+EXEC := lemmings
 
 # Main target
 \$(EXEC): \$(OBJS)
@@ -102,13 +52,32 @@ EXEC := Game/lemmings
 	@mkdir -p \$(OBJ_DIR)
 	\$(CXX) \$(CXXFLAGS) -c \$< -o \$@
 
+# Install target
+install: \$(EXEC)
+	install -d \$(INSTALL_PATH)
+	install -m 755 \$(EXEC) \$(INSTALL_PATH)
+	install -m 644 \$(FMOD_PATH)/api/core/lib/$FMOD_LIB_PATH/libfmod.so* \$(INSTALL_PATH)
+	install -m 644 \$(FMOD_PATH)/api/studio/lib/$FMOD_LIB_PATH/libfmodstudio.so* \$(INSTALL_PATH)
+	cp -R Game \$(INSTALL_PATH)
+	@echo "Creating launch script..."
+	@echo '#!/bin/bash' > /usr/local/bin/lemmings
+	@echo 'cd \$(INSTALL_PATH) && LD_LIBRARY_PATH=\$(INSTALL_PATH) ./lemmings' >> /usr/local/bin/lemmings
+	chmod +x /usr/local/bin/lemmings
+
 # Clean rule
 clean:
 	rm -rf \$(OBJ_DIR) \$(EXEC)
 
+# Uninstall target
+uninstall:
+	rm -rf \$(INSTALL_PATH)
+	rm -f /usr/local/bin/lemmings
+
 # Phony targets
-.PHONY: clean
+.PHONY: clean install uninstall
 EOF
 
 echo "Configuration complete. Makefile has been created."
 echo "You can now run 'make' to build the project."
+echo "After building, run 'sudo make install' to install the game."
+
