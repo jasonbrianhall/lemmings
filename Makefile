@@ -52,9 +52,27 @@ install: $(EXEC)
 	install -d $(INSTALL_PATH)
 	install -d $(INSTALL_LIB_PATH)
 	install -m 755 $(EXEC) $(INSTALL_PATH)
-	install -m 644 $(FMOD_PATH)/api/core/lib/x86_64/libfmod.so* $(INSTALL_LIB_PATH)
-	install -m 644 $(FMOD_PATH)/api/studio/lib/x86_64/libfmodstudio.so* $(INSTALL_LIB_PATH)
-	cp -R Game/* $(INSTALL_PATH)
+	if [ -d Game ]; then \
+		cp -R Game/* $(INSTALL_PATH); \
+	else \
+		echo "Warning: Game directory not found. Game assets may be missing."; \
+	fi
+	for lib in $(FMOD_PATH)/api/core/lib/x86_64/libfmod*.so*; do \
+		if [ -f "$glu" ]; then \
+			install -m 644 "$glu" $(INSTALL_LIB_PATH); \
+		fi \
+	done
+	for lib in $(FMOD_PATH)/api/studio/lib/x86_64/libfmodstudio*.so*; do \
+		if [ -f "$glu" ]; then \
+			install -m 644 "$glu" $(INSTALL_LIB_PATH); \
+		fi \
+	done
+	if [ -f $(INSTALL_LIB_PATH)/libfmod.so.* ]; then \
+		(cd $(INSTALL_LIB_PATH) && ln -sf libfmod.so.* libfmod.so); \
+	fi
+	if [ -f $(INSTALL_LIB_PATH)/libfmodstudio.so.* ]; then \
+		(cd $(INSTALL_LIB_PATH) && ln -sf libfmodstudio.so.* libfmodstudio.so); \
+	fi
 	@echo "Creating launch script..."
 	@echo '#!/bin/bash' > /usr/local/bin/lemmings
 	@echo 'cd $(INSTALL_PATH) && LD_LIBRARY_PATH=$(INSTALL_LIB_PATH):$ ./lemmings' >> /usr/local/bin/lemmings
