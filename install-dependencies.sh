@@ -10,12 +10,12 @@ if command_exists dnf; then
     # Fedora
     echo "Detected Fedora system"
     sudo dnf update -y
-    sudo dnf install -y g++ pkgconfig freeglut-devel glew-devel mesa-libGL-devel mesa-libGLU-devel SOIL-devel
+    sudo dnf install -y g++ pkgconfig freeglut-devel glew-devel mesa-libGL-devel mesa-libGLU-devel SOIL-devel glm-devel
 elif command_exists apt-get; then
     # Ubuntu
     echo "Detected Ubuntu system"
     sudo apt-get update
-    sudo apt-get install -y g++ pkg-config freeglut3-dev libglew-dev libgl1-mesa-dev libglu1-mesa-dev libsoil-dev
+    sudo apt-get install -y g++ pkg-config freeglut3-dev libglew-dev libgl1-mesa-dev libglu1-mesa-dev libsoil-dev libglm-dev
 else
     echo "Unsupported operating system. This script works only on Red Hat/Fedora/Clones and Ubuntu/Clones."
     exit 1
