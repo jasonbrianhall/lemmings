@@ -68,6 +68,22 @@ case $ARCH in
         ;;
 esac
 
+echo "Detected architecture: $ARCH, using FMOD lib path: $FMOD_LIB_PATH"
+
+# Check if FMOD libraries exist
+FMOD_CORE_LIB="$FMOD_PATH/api/core/lib/$FMOD_LIB_PATH/libfmod.so"
+FMOD_STUDIO_LIB="$FMOD_PATH/api/studio/lib/$FMOD_LIB_PATH/libfmodstudio.so"
+
+if [ ! -f "$FMOD_CORE_LIB" ]; then
+    echo "Error: FMOD core library not found at $FMOD_CORE_LIB"
+    exit 1
+fi
+
+if [ ! -f "$FMOD_STUDIO_LIB" ]; then
+    echo "Error: FMOD studio library not found at $FMOD_STUDIO_LIB"
+    exit 1
+fi
+
 # Create Makefile
 cat > Makefile << EOF
 # Compiler
@@ -124,8 +140,8 @@ install: \$(EXEC)
 	install -d \$(INSTALL_PATH)
 	install -d \$(INSTALL_LIB_PATH)
 	install -m 755 \$(EXEC) \$(INSTALL_PATH)
-	install -m 644 \$(FMOD_PATH)/api/core/lib/\$(FMOD_LIB_PATH)/libfmod.so.* \$(INSTALL_LIB_PATH)
-	install -m 644 \$(FMOD_PATH)/api/studio/lib/\$(FMOD_LIB_PATH)/libfmodstudio.so.* \$(INSTALL_LIB_PATH)
+	install -m 644 \$(FMOD_PATH)/api/core/lib/$FMOD_LIB_PATH/libfmod.so* \$(INSTALL_LIB_PATH)
+	install -m 644 \$(FMOD_PATH)/api/studio/lib/$FMOD_LIB_PATH/libfmodstudio.so* \$(INSTALL_LIB_PATH)
 	(cd \$(INSTALL_LIB_PATH) && ln -sf libfmod.so.* libfmod.so)
 	(cd \$(INSTALL_LIB_PATH) && ln -sf libfmodstudio.so.* libfmodstudio.so)
 	cp -R Game/* \$(INSTALL_PATH)
@@ -155,3 +171,4 @@ EOF
 echo "Configuration complete. Makefile has been created."
 echo "You can now run 'make' to build the project."
 echo "After building, run 'sudo make install' to install the game."
+
